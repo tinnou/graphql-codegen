@@ -1,0 +1,61 @@
+apply plugin: 'idea'
+apply plugin: 'java'
+
+description = "GraphQL schema to Java code generator"
+
+version = '0.0.1'
+group = 'com.graphql-java-codegen'
+
+//noinspection GroovyUnusedAssignment
+sourceCompatibility = 1.8
+//noinspection GroovyUnusedAssignment
+targetCompatibility = 1.8
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+}
+
+
+sourceSets {
+    //tell gradle where the resource folders (used for inclusion in the jar too)
+    main {
+        resources.srcDirs = ["src/main/resources", "generatedsources/"]
+    }
+}
+
+jar {
+    from "LICENSE"
+}
+
+task sourcesJar(type: Jar) {
+    dependsOn classes
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
+}
