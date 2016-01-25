@@ -1,0 +1,10 @@
+    {{#description}}
+        /**
+        * {{description}}
+        {{#deprecationReason}}
+        *   Deprecation Reason : {{deprecationReason}}
+        {{/deprecationReason}}
+        **/
+    {{/description}}
+    {{#deprecated}}@Deprecated{{/deprecated}}
+    private {{#typeReference}}{{{generatedType}}}{{/typeReference}} {{name}};

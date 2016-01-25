@@ -1,0 +1,24 @@
+package {{packagePath}};
+
+{{#description}}
+    /**
+    * {{description}}
+    **/
+{{/description}}
+
+public enum {{name}} {
+{{#members}}
+    {{this}}{{^-last}}, {{/-last}}
+{{/members}}
+
+    private String value;
+
+    {{name}} (String value) {
+    this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}

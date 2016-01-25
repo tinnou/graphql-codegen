@@ -1,0 +1,27 @@
+package {{packagePath}};
+
+{{#imports}}import {{import}};
+{{/imports}}
+
+{{#description}}
+    /**
+    * {{description}}
+    **/
+{{/description}}
+
+public class {{name}}{{#superClass}} extends {{{superClass}}}{{/superClass}}{{#inheritedTypes}} implements {{typeName}}{{^-last}}, {{/-last}}{{/inheritedTypes}} {
+
+{{#members}}
+    {{>field}}
+{{/members}}
+
+{{#members}}
+    public {{#typeReference}}{{{generatedType}}}{{/typeReference}} {{getter}}() {
+        return {{name}};
+    }
+    public void {{setter}}({{#typeReference}}{{{generatedType}}}{{/typeReference}} {{name}}) {
+        this.{{name}} = {{name}};
+    }
+
+{{/members}}
+}
