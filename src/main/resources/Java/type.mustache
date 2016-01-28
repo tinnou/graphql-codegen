@@ -4,11 +4,10 @@ package {{packagePath}};
 {{/imports}}
 
 {{#description}}
-    /**
-    * {{description}}
-    **/
+/**
+* {{description}}
+**/
 {{/description}}
-
 public class {{name}}{{#superClass}} extends {{{superClass}}}{{/superClass}}{{#inheritedTypes}} implements {{typeName}}{{^-last}}, {{/-last}}{{/inheritedTypes}} {
 
 {{#members}}

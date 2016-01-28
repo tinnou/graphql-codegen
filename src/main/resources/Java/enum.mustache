@@ -1,12 +1,12 @@
 package {{packagePath}};
 
 {{#description}}
-    /**
-    * {{description}}
-    **/
+/**
+* {{description}}
+**/
 {{/description}}
-
 public enum {{name}} {
+
 {{#members}}
     {{this}}{{^-last}}, {{/-last}}
 {{/members}}

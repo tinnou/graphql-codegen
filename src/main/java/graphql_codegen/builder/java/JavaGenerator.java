@@ -1,6 +1,7 @@
 package graphql_codegen.builder.java;
 
-import graphql_codegen.CodeBuilder;
+import graphql_codegen.Code;
+import graphql_codegen.Util;
 import graphql_codegen.type.GraphQLTypeDescription;
 
 import java.util.ArrayList;
@@ -18,17 +19,16 @@ public class JavaGenerator {
         this.basePackage = basePackage;
     }
 
-    public CodeBuilder convertFromGraphQLTypeToJava(GraphQLTypeDescription type) {
+    public Code convertFromGraphQLTypeToJava(GraphQLTypeDescription type) {
         switch (type.getKind()) {
             case OBJECT:
-            case INTERFACE:
                 if (type.getName() == null) {
-                    System.out.println("Object/Interface type must have a name");
+                    System.out.println("Object type must have a name");
                     return null;
                 }
 
                 if (type.getFields() == null || type.getFields().isEmpty()) {
-                    System.out.println("Object/Interface type must have fields");
+                    System.out.println("Object type must have fields");
                     return null;
                 }
 
@@ -47,13 +47,47 @@ public class JavaGenerator {
                             .collect(Collectors.toList());
                 }
 
-                return JavaTypeBuilder.newJavaTypeBuilder()
+                return JavaType.newJavaTypeBuilder()
                         .withPackagePath(basePackage)
                         .withName(capitalizeFirstLetter(type.getName()))
                         .withMembers(javaFields)
                         .withInheritedTypes(interfaces)
                         //.withSerializable(true)
                         //.withSuperClass("Object")
+                        .withDescription(type.getDescription())
+                        .build();
+            case INTERFACE:
+                if (type.getName() == null) {
+                    System.out.println("Interface type must have a name");
+                    return null;
+                }
+
+                if (type.getFields() == null || type.getFields().isEmpty()) {
+                    System.out.println("Interface type must have fields");
+                    return null;
+                }
+
+                List<JavaField> javaInterfaceFields = type.getFields().stream()
+                        .map(f -> new JavaField(f.getName(),
+                                                f.getDescription(),
+                                                getJavaTypeReference(f.getType()),
+                                                f.isDeprecated(), f.getDeprecationReason()))
+                        .collect(Collectors.toList());
+
+                List<String> superInterfaces = new ArrayList<>();
+
+                if (type.getInterfaces() != null) {
+                    superInterfaces = type.getInterfaces().stream()
+                            .map(it -> Util.capitalizeFirstLetter(it.getName()))
+                            .collect(Collectors.toList());
+                }
+
+                return JavaInterface.newJavaInterfaceBuilder()
+                        .withPackagePath(basePackage)
+                        .withName(capitalizeFirstLetter(type.getName()))
+                        .withFields(javaInterfaceFields)
+                        .withSuperInterfaces(superInterfaces)
+                        //.withSerializable(true)
                         .withDescription(type.getDescription())
                         .build();
             case ENUM:
@@ -70,7 +104,7 @@ public class JavaGenerator {
                 List<String> enumValues = type.getEnumValues().stream()
                         .map(enumDesc -> enumDesc.getName().toUpperCase())
                         .collect(Collectors.toList());
-                return JavaEnumBuilder.newJavaEnumBuilder()
+                return JavaEnum.newJavaEnumBuilder()
                         .withPackagePath(basePackage)
                         .withName(type.getName())
                         .withMembers(enumValues)

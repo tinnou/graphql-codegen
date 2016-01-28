@@ -1,11 +1,10 @@
 package graphql_codegen.builder.java;
 
-import com.samskivert.mustache.Mustache;
+import graphql_codegen.Util;
 
-import java.io.*;
 import java.util.List;
 
-public class JavaEnumBuilder implements JavaCodeBuilder {
+public class JavaEnum implements JavaCode {
 
     private static final String TEMPLATE_FILE_NAME = "enum.mustache";
 
@@ -15,7 +14,7 @@ public class JavaEnumBuilder implements JavaCodeBuilder {
 
     private final List<String> members;
 
-    JavaEnumBuilder(String packagePath, List<String> members, String name, String description) {
+    JavaEnum(String packagePath, List<String> members, String name, String description) {
         this.packagePath = packagePath;
         this.members = members;
         this.name = name;
@@ -24,18 +23,7 @@ public class JavaEnumBuilder implements JavaCodeBuilder {
 
     @Override
     public String code() {
-        return code(this, TEMPLATE_FILE_NAME);
-    }
-
-    public String code(Object context, String fileName) {
-        InputStream in = getClass().getResourceAsStream("/Java/"+ fileName);
-        Reader reader = new InputStreamReader(in);
-
-        Writer writer = new StringWriter();
-
-        Mustache.compiler().compile(reader).execute(context, writer);
-
-        return writer.toString();
+        return Util.fillOutJavaTemplate(this, TEMPLATE_FILE_NAME);
     }
 
     @Override
@@ -88,8 +76,8 @@ public class JavaEnumBuilder implements JavaCodeBuilder {
             return this;
         }
 
-        public JavaEnumBuilder build() {
-            return new JavaEnumBuilder(packagePath, members, name, description);
+        public JavaEnum build() {
+            return new JavaEnum(packagePath, members, name, description);
         }
     }
 

@@ -5,7 +5,7 @@ import graphql_codegen.Util;
 import java.util.Collections;
 import java.util.List;
 
-public class JavaTypeBuilder implements JavaCodeBuilder {
+public class JavaType implements JavaCode {
 
     private final static String TEMPLATE_FILE_NAME = "type.mustache";
 
@@ -18,9 +18,9 @@ public class JavaTypeBuilder implements JavaCodeBuilder {
     private final boolean serializable;
     private final String description;
 
-    private JavaTypeBuilder(String superClass, List<String> imports,
-                            List<JavaTypeReference> inheritedTypes, List<JavaField> members,
-                            String name, String packagePath, boolean serializable, String description) {
+    private JavaType(String superClass, List<String> imports,
+                     List<JavaTypeReference> inheritedTypes, List<JavaField> members,
+                     String name, String packagePath, boolean serializable, String description) {
         this.superClass = superClass;
         this.imports = imports;
         this.inheritedTypes = inheritedTypes;
@@ -33,7 +33,7 @@ public class JavaTypeBuilder implements JavaCodeBuilder {
 
     @Override
     public String code() {
-        return Util.code(this, TEMPLATE_FILE_NAME);
+        return Util.fillOutJavaTemplate(this, TEMPLATE_FILE_NAME);
     }
 
     public List<String> getImports() {
@@ -116,9 +116,9 @@ public class JavaTypeBuilder implements JavaCodeBuilder {
             return this;
         }
 
-        public JavaTypeBuilder build() {
-            return new JavaTypeBuilder(superClass, Collections.emptyList(), inheritedTypes, members, name, packagePath, serializable,
-                                       description);
+        public JavaType build() {
+            return new JavaType(superClass, Collections.emptyList(), inheritedTypes, members, name, packagePath, serializable,
+                                description);
         }
     }
 }

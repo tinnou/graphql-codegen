@@ -34,12 +34,11 @@ public class JavaTypeReference {
                 if (genericParameters == null) {
                     return typeName;
                 }
-                String code =  "List<"
+                return "List<"
                         + genericParameters.stream()
                             .map(JavaTypeReference::code)
                             .collect(Collectors.joining(", "))
                         +">";
-                return code;
             default:
                 return typeName;
         }

@@ -1,0 +1,16 @@
+package {{packagePath}};
+
+{{#imports}}import {{import}};
+{{/imports}}
+
+{{#description}}
+/**
+* {{description}}
+**/
+{{/description}}
+public interface {{name}}{{#superInterfaces}} extends {{{superInterface}}}{{^-last}}, {{/-last}}{{/superInterfaces}} {
+
+{{#fields}}
+    {{#typeReference}}{{{generatedType}}}{{/typeReference}} {{getter}}();
+{{/fields}}
+}
