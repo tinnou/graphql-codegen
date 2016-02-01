@@ -4,7 +4,7 @@ import graphql_codegen.Util;
 
 import java.util.List;
 
-public class JavaEnum implements JavaCode {
+public class JavaEnum extends JavaCode {
 
     private static final String TEMPLATE_FILE_NAME = "enum.mustache";
 
@@ -14,7 +14,7 @@ public class JavaEnum implements JavaCode {
 
     private final List<String> members;
 
-    JavaEnum(String packagePath, List<String> members, String name, String description) {
+    private JavaEnum(String packagePath, List<String> members, String name, String description) {
         this.packagePath = packagePath;
         this.members = members;
         this.name = name;

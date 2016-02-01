@@ -4,7 +4,7 @@ import graphql_codegen.Util;
 
 import java.util.List;
 
-public class JavaInterface implements JavaCode {
+public class JavaInterface extends JavaCode {
 
     private final static String TEMPLATE_FILE_NAME = "interface.mustache";
 

@@ -1,6 +1,6 @@
 package graphql_codegen;
 
-import graphql_codegen.cli.Generate;
+import graphql_codegen.cli.GenerateJava;
 import graphql_codegen.cli.Langs;
 import io.airlift.airline.Cli;
 import io.airlift.airline.Help;
@@ -11,11 +11,16 @@ public class Main {
         @SuppressWarnings("unchecked")
         Cli.CliBuilder<Runnable> builder = Cli.<Runnable>builder("graphql-codegen")
                 .withDescription("GraphQL code generator CLI.")
-                .withDefaultCommand(Langs.class)
+                .withDefaultCommand(Help.class)
                 .withCommands(
-                        Generate.class,
+                        Langs.class,
                         Help.class
                 );
+
+        builder.withGroup("generate")
+                .withDescription("Generate code in chosen lang")
+                .withDefaultCommand(GenerateJava.class)
+                .withCommand(GenerateJava.class);
 
         builder.build().parse(args).run();
     }

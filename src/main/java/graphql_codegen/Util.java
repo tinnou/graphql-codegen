@@ -7,12 +7,13 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.HttpRequestWithBody;
+import com.mashape.unirest.request.body.RequestBodyEntity;
 import com.samskivert.mustache.Mustache;
 import graphql_codegen.type.GraphQLTypeDescription;
 import graphql_codegen.type.SchemaResponse;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -51,29 +52,21 @@ public class Util {
     }
 
     public static String fillOutJavaTemplate(Object context, String fileName) {
-        return fillOutTemplate(context, fileName, "Java");
+        return fillOutTemplate(context, fileName, "java");
     }
 
-    public static String fillOutTemplate(Object context, String fileName, String language) {
+    public static String fillOutTemplate(Object context, String fileName, final String language) {
+        // open template for filling
         InputStream in = Thread.currentThread().getClass().getResourceAsStream("/"+language+"/"+ fileName);
         Reader reader = new InputStreamReader(in);
 
         Writer writer = new StringWriter();
 
-        final File templateDir;
-        try {
-            templateDir = new File(Thread.currentThread().getClass().getResource("/"+language+"/").toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-        // allowed loading sub template
+        // allow loading sub template from same directory
         Mustache.Compiler c = Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
             public Reader getTemplate (String name) {
-                try {
-                    return new FileReader(new File(templateDir, name + ".mustache"));
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
+                InputStream in = Thread.currentThread().getClass().getResourceAsStream("/"+language+"/"+ name + ".mustache");
+                return new InputStreamReader(in);
             }
         });
         c.compile(reader).execute(context, writer);
@@ -86,18 +79,26 @@ public class Util {
         return s.hasNext() ? s.next() : "";
     }
 
-    public static String fetchSchemaFromRemote(String url) {
+    public static String fetchSchemaFromRemote(String url, String basicAuthUsername, String basicAuthPassword) {
         Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("query", introspectionQuery());
         bodyMap.put("variables", null);
 
+        HttpRequestWithBody requestWithBody = Unirest.post(url)
+                .header("Content-Type", "application/json")
+                .header("accept", "application/json");
+
+        // basic auth
+        if (basicAuthUsername != null && basicAuthPassword != null) {
+            requestWithBody.basicAuth(basicAuthUsername, basicAuthPassword);
+        }
+
+        // body
+        RequestBodyEntity requestBodyEntity = requestWithBody.body(bodyMap);
+
         HttpResponse<JsonNode> jsonNodeHttpResponse;
         try {
-            jsonNodeHttpResponse = Unirest.post(url)
-                    .header("Content-Type", "application/json")
-                    .header("accept", "application/json")
-                    .body(bodyMap)
-                    .asJson();
+            jsonNodeHttpResponse = requestBodyEntity.asJson();
         } catch (UnirestException e) {
             throw new RuntimeException(e);
         }

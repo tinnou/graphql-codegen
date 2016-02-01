@@ -28,6 +28,10 @@ public class JavaTypeReference {
         return typeName;
     }
 
+    public List<JavaTypeReference> getGenericParameters() {
+        return genericParameters;
+    }
+
     public String code() {
         switch (typeName) {
             case "List":
@@ -36,8 +40,8 @@ public class JavaTypeReference {
                 }
                 return "List<"
                         + genericParameters.stream()
-                            .map(JavaTypeReference::code)
-                            .collect(Collectors.joining(", "))
+                            .map(JavaTypeReference::getTypeName)
+                            .collect(Collectors.joining(",")) /* what about List<List<String>>, is that even possible? */
                         +">";
             default:
                 return typeName;

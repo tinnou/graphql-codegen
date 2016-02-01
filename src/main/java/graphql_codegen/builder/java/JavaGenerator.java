@@ -1,5 +1,6 @@
 package graphql_codegen.builder.java;
 
+import com.sun.tools.corba.se.idl.Generator;
 import graphql_codegen.Code;
 import graphql_codegen.Util;
 import graphql_codegen.type.GraphQLTypeDescription;
@@ -7,36 +8,79 @@ import graphql_codegen.type.GraphQLTypeDescription;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static graphql_codegen.Util.capitalizeFirstLetter;
 
-public class JavaGenerator {
+public class JavaGenerator implements Generator {
 
     private final String basePackage;
+    private final Map<String, String> typeNameToPackageOverrideMap;
 
-    public JavaGenerator(String basePackage) {
+    public JavaGenerator(String basePackage, Map<String, String> typeNameToPackageOverrideMap) {
         this.basePackage = basePackage;
+        this.typeNameToPackageOverrideMap = typeNameToPackageOverrideMap;
     }
 
-    public Code convertFromGraphQLTypeToJava(GraphQLTypeDescription type) {
+    public Code convertFromGraphQLTypeToCode(GraphQLTypeDescription type) {
         switch (type.getKind()) {
+            case INPUT_OBJECT:
+                if (type.getName() == null) {
+                    System.out.println("Input Object type "+type.getName()+" must have a name");
+                    return null;
+                }
+
+                if (type.getInputFields() == null || type.getInputFields().isEmpty()) {
+                    System.out.println("Input Object type "+type.getName()+" must have fields");
+                    return null;
+                }
+
+                List<JavaField> javaInputFields = type.getInputFields().stream()
+                        .map(f -> {
+                            return new JavaField(f.getName(),
+                                                 f.getDescription(),
+                                                 getJavaTypeReference(f.getType()),
+                                                 false, null);
+                        })
+                        .collect(Collectors.toList());
+
+                List<JavaTypeReference> inputInterfaces = new ArrayList<>();
+
+                if (type.getInterfaces() != null) {
+                    inputInterfaces = type.getInterfaces().stream()
+                            .map(i -> { return new JavaTypeReference(i.getName());})
+                            .collect(Collectors.toList());
+                }
+
+                return JavaType.newJavaTypeBuilder()
+                        .withPackagePath(basePackage)
+                        .withImportMapOverride(typeNameToPackageOverrideMap)
+                        .withName(capitalizeFirstLetter(type.getName()))
+                        .withMembers(javaInputFields)
+                        .withInheritedTypes(inputInterfaces)
+                        //.withSerializable(true)
+                        //.withSuperClass("Object")
+                        .withDescription(type.getDescription())
+                        .build();
             case OBJECT:
                 if (type.getName() == null) {
-                    System.out.println("Object type must have a name");
+                    System.out.println("Object type "+type.getName()+" must have a name");
                     return null;
                 }
 
                 if (type.getFields() == null || type.getFields().isEmpty()) {
-                    System.out.println("Object type must have fields");
+                    System.out.println("Object type "+type.getName()+" must have fields");
                     return null;
                 }
 
                 List<JavaField> javaFields = type.getFields().stream()
-                        .map(f -> new JavaField(f.getName(),
-                                                f.getDescription(),
-                                                getJavaTypeReference(f.getType()),
-                                                f.isDeprecated(), f.getDeprecationReason()))
+                        .map(f -> {
+                            return new JavaField(f.getName(),
+                                                 f.getDescription(),
+                                                 getJavaTypeReference(f.getType()),
+                                                 f.isDeprecated(), f.getDeprecationReason());
+                        })
                         .collect(Collectors.toList());
 
                 List<JavaTypeReference> interfaces = new ArrayList<>();
@@ -49,6 +93,7 @@ public class JavaGenerator {
 
                 return JavaType.newJavaTypeBuilder()
                         .withPackagePath(basePackage)
+                        .withImportMapOverride(typeNameToPackageOverrideMap)
                         .withName(capitalizeFirstLetter(type.getName()))
                         .withMembers(javaFields)
                         .withInheritedTypes(interfaces)
@@ -58,12 +103,12 @@ public class JavaGenerator {
                         .build();
             case INTERFACE:
                 if (type.getName() == null) {
-                    System.out.println("Interface type must have a name");
+                    System.out.println("Interface type "+type.getName()+" must have a name");
                     return null;
                 }
 
                 if (type.getFields() == null || type.getFields().isEmpty()) {
-                    System.out.println("Interface type must have fields");
+                    System.out.println("Interface type "+type.getName()+" must have fields");
                     return null;
                 }
 
@@ -110,6 +155,8 @@ public class JavaGenerator {
                         .withMembers(enumValues)
                         .withDescription(type.getDescription())
                         .build();
+            case SCALAR:
+                return null;
             default:
                 System.out.println("Unable to handle " + type.getKind() + " with name " + type.getName());
                 return null;
@@ -127,7 +174,7 @@ public class JavaGenerator {
                     case "Int":
                         return new JavaTypeReference("Integer");
                     default:
-                        return new JavaTypeReference(type.getName());
+                        return new JavaTypeReference(Util.capitalizeFirstLetter(type.getName()));
                 }
             case LIST:
                 if (type.getOfType() == null) {
@@ -142,8 +189,7 @@ public class JavaGenerator {
                 }
                 return getJavaTypeReference(type.getOfType());
             default:
-                System.out.println("Unable to resolve type from GraphQL kind " + type.getKind()+ " with name " + type.getName());
-                return new JavaTypeReference(type.getName());
+                return new JavaTypeReference(Util.capitalizeFirstLetter(type.getName()));
         }
     }
 }
