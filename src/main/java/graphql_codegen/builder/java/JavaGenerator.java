@@ -1,7 +1,7 @@
 package graphql_codegen.builder.java;
 
-import com.sun.tools.corba.se.idl.Generator;
 import graphql_codegen.Code;
+import graphql_codegen.Generator;
 import graphql_codegen.Util;
 import graphql_codegen.type.GraphQLTypeDescription;
 
