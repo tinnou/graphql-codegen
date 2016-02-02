@@ -3,6 +3,8 @@ graphql-codegen
 
 graphql-codegen generates code given a GraphQL Schema. (Only Java is supported for now)
 
+[![Build Status](https://travis-ci.org/tinnou/graphql-codegen.svg?branch=master)](https://travis-ci.org/tinnou/graphql-codegen)
+
 Install:
 --------
 
