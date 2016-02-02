@@ -1,8 +1,7 @@
 graphql-codegen
 ===============
 
-graphql-codegen generates code given a GraphQL Schema.
-(Only Java is supported for now)
+graphql-codegen generates code given a GraphQL Schema. (Only Java is supported for now)
 
 Install:
 --------
@@ -68,5 +67,7 @@ OPTIONS
 graphql-codegen is licensed under the MIT License. See [LICENSE](LICENSE.md) for details.
 
 Copyright (c) 2016, Antoine Boyer and [Contributors](https://github.com/tinnou/graphql-codegen/graphs/contributors)
+
+Inspired by [graphql-swift-codegen](https://github.com/tberman/graphql-swift-codegen) by [@tberman](https://github.com/tberman)
 
 [graphql-js License](https://github.com/graphql/graphql-js/blob/master/LICENSE)
