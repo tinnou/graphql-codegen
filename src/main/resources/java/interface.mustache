@@ -8,7 +8,7 @@ package {{packagePath}};
 * {{description}}
 **/
 {{/description}}
-public interface {{name}}{{#superInterfaces}} extends {{{superInterface}}}{{^-last}}, {{/-last}}{{/superInterfaces}} {
+public interface {{name}}{{#superInterfaces}} extends {{{typeName}}}{{^-last}}, {{/-last}}{{/superInterfaces}} {
 
 {{#fields}}
     {{#typeReference}}{{{generatedType}}}{{/typeReference}} {{getter}}();

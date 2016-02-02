@@ -2,20 +2,25 @@ package graphql_codegen.builder.java;
 
 import graphql_codegen.Util;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class JavaInterface extends JavaCode {
 
     private final static String TEMPLATE_FILE_NAME = "interface.mustache";
 
     private final String packagePath;
-    private final List<String> imports;
+    private final Set<String> imports;
     private final String name;
-    private final List<String> superInterfaces;
+    private final List<JavaTypeReference> superInterfaces;
     private final List<JavaField> fields;
     private final String description;
 
-    private JavaInterface(List<String> superInterfaces, List<String> imports,
+    private JavaInterface(List<JavaTypeReference> superInterfaces, Set<String> imports,
                           List<JavaField> fields,
                           String name, String packagePath, String description) {
         this.superInterfaces = superInterfaces;
@@ -36,7 +41,7 @@ public class JavaInterface extends JavaCode {
         return name;
     }
 
-    public List<String> getImports() {
+    public Set<String> getImports() {
         return imports;
     }
 
@@ -52,7 +57,7 @@ public class JavaInterface extends JavaCode {
         return name;
     }
 
-    public List<String> getSuperInterfaces() {
+    public List<JavaTypeReference> getSuperInterfaces() {
         return superInterfaces;
     }
 
@@ -65,20 +70,21 @@ public class JavaInterface extends JavaCode {
     }
 
     public static class Builder {
-        private List<String> superInterfaces;
-        private List<String> imports;
+        private List<JavaTypeReference> superInterfaces;
         private List<JavaField> fields;
         private String name;
         private String packagePath;
         private String description;
+        private Map<String, String> typeNameToPackageOverrideMap = new HashMap<>();
 
-        public Builder withSuperInterfaces(List<String> superInterfaces) {
-            this.superInterfaces = superInterfaces;
+        public Builder withImportMapOverride(Map<String,String> typeNameToPackageOverrideMap) {
+            checkNotNull(typeNameToPackageOverrideMap);
+            this.typeNameToPackageOverrideMap = typeNameToPackageOverrideMap;
             return this;
         }
 
-        public Builder withImports(List<String> imports) {
-            this.imports = imports;
+        public Builder withSuperInterfaces(List<JavaTypeReference> superInterfaces) {
+            this.superInterfaces = superInterfaces;
             return this;
         }
 
@@ -103,7 +109,7 @@ public class JavaInterface extends JavaCode {
         }
 
         public JavaInterface build() {
-            return new JavaInterface(superInterfaces, imports, fields, name, packagePath, description);
+            return new JavaInterface(superInterfaces, buildImports(fields, superInterfaces, typeNameToPackageOverrideMap), fields, name, packagePath, description);
         }
     }
 }

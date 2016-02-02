@@ -9,17 +9,17 @@ public class JavaField {
     private JavaTypeReference typeReference;
     private String setter;
     private String getter;
-    private boolean isDeprecated;
+    private boolean deprecated;
     private String deprecationReason;
 
 
     public JavaField(String name, String description,
                      JavaTypeReference typeReference,
-                     boolean isDeprecated, String deprecationReason) {
+                     boolean deprecated, String deprecationReason) {
         this.name = name;
         this.description = description;
         this.typeReference = typeReference;
-        this.isDeprecated = isDeprecated;
+        this.deprecated = deprecated;
         this.deprecationReason = deprecationReason;
         this.getter = "get" + capitalizeFirstLetter(name);
         this.setter = "set" + capitalizeFirstLetter(name);
@@ -43,7 +43,7 @@ public class JavaField {
     }
 
     public boolean isDeprecated() {
-        return isDeprecated;
+        return deprecated;
     }
 
     public String getDeprecationReason() {

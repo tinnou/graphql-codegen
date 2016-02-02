@@ -2,9 +2,10 @@ package graphql_codegen.builder.java;
 
 import graphql_codegen.Util;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -133,54 +134,7 @@ public class JavaType extends JavaCode {
         }
 
         public JavaType build() {
-            return new JavaType(superClass, buildImports(), inheritedTypes, members, name, packagePath, serializable, description);
-        }
-
-        private Set<String> buildImports() {
-            Set<String> imports = new HashSet<>();
-            // check members
-            if (members != null) {
-                // field type
-                Stream<JavaTypeReference> fieldTypeRef = members.stream()
-                        .map(JavaField::getTypeReference);
-                // generic params type
-                Stream<JavaTypeReference> genericParamsTypeRef = members.stream()
-                        .map(JavaField::getTypeReference)
-                        .filter(f -> f.getGenericParameters() != null)
-                        .flatMap(f -> f.getGenericParameters().stream());
-
-                Set<String> memberImports = Stream.concat(fieldTypeRef, genericParamsTypeRef)
-                        .map(this::getImportFromTypeReference)
-                        .filter(importStr -> importStr != null)
-                        .collect(Collectors.toSet());
-
-                imports.addAll(memberImports);
-            }
-            // check inherited types
-            if (inheritedTypes != null) {
-                Set<String> inheritedTypesImports = inheritedTypes.stream()
-                        .map(this::getImportFromTypeReference)
-                        .filter(importStr -> importStr != null)
-                        .collect(Collectors.toSet());
-
-                imports.addAll(inheritedTypesImports);
-            }
-            return imports;
-        }
-
-        private String getImportFromTypeReference(JavaTypeReference f) {
-            // check from overrides
-            if (typeNameToPackageOverrideMap.containsKey(f.getTypeName())) {
-                return typeNameToPackageOverrideMap.get(f.getTypeName());
-            }
-
-            // check if it's a standard java type
-            if (STANDARD_IMPORTS.containsKey(f.getTypeName())) {
-                return STANDARD_IMPORTS.get(f.getTypeName());
-            }
-
-            // is unknown
-            return null;
+            return new JavaType(superClass, buildImports(members, inheritedTypes, typeNameToPackageOverrideMap), inheritedTypes, members, name, packagePath, serializable, description);
         }
     }
 }

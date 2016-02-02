@@ -2,8 +2,9 @@ package graphql_codegen.builder.java;
 
 import graphql_codegen.Code;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class JavaCode implements Code {
 
@@ -28,4 +29,53 @@ public abstract class JavaCode implements Code {
     }
 
     public String extension() { return ".java"; }
+
+
+    protected static Set<String> buildImports(List<JavaField> members, List<JavaTypeReference> inheritedTypes, Map<String, String> typeNameToPackageOverrideMap) {
+        Set<String> imports = new HashSet<>();
+        // check members
+        if (members != null) {
+            // field type
+            Stream<JavaTypeReference> fieldTypeRef = members.stream()
+                    .map(JavaField::getTypeReference);
+            // generic params type
+            Stream<JavaTypeReference> genericParamsTypeRef = members.stream()
+                    .map(JavaField::getTypeReference)
+                    .filter(f -> f.getGenericParameters() != null)
+                    .flatMap(f -> f.getGenericParameters().stream());
+
+            Set<String> memberImports = Stream.concat(fieldTypeRef, genericParamsTypeRef)
+                    .map(tr -> getImportFromTypeReference(tr, typeNameToPackageOverrideMap))
+                    .filter(importStr -> importStr != null)
+                    .collect(Collectors.toSet());
+
+            imports.addAll(memberImports);
+        }
+        // check inherited types
+        if (inheritedTypes != null) {
+            Set<String> inheritedTypesImports = inheritedTypes.stream()
+                    .map(tr -> getImportFromTypeReference(tr, typeNameToPackageOverrideMap))
+                    .filter(importStr -> importStr != null)
+                    .collect(Collectors.toSet());
+
+            imports.addAll(inheritedTypesImports);
+        }
+        return imports;
+    }
+
+
+    protected static String getImportFromTypeReference(JavaTypeReference f, Map<String, String> typeNameToPackageOverrideMap) {
+        // check from overrides
+        if (typeNameToPackageOverrideMap.containsKey(f.getTypeName())) {
+            return typeNameToPackageOverrideMap.get(f.getTypeName());
+        }
+
+        // check if it's a standard java type
+        if (STANDARD_IMPORTS.containsKey(f.getTypeName())) {
+            return STANDARD_IMPORTS.get(f.getTypeName());
+        }
+
+        // is unknown
+        return null;
+    }
 }
