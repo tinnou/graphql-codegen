@@ -34,9 +34,7 @@ public class JavaGenerator implements Generator {
                 return convertGraphQLInterfaceTypeToCode(type);
             case ENUM:
                 return convertFromGraphQLEnumTypeToCode(type);
-            case UNION:
-                System.out.println("Unable to handle " + type.getKind() + " with name " + type.getName());
-                return null;
+            case UNION: // is handled with generic types
             default:
                 return null;
         }
@@ -206,6 +204,8 @@ public class JavaGenerator implements Generator {
                     return new JavaTypeReference("INVALID_TYPE");
                 }
                 return getJavaTypeReference(type.getOfType());
+            case UNION:
+                return new JavaTypeReference(Util.capitalizeFirstLetter(type.getName()), true);
             default:
                 return new JavaTypeReference(Util.capitalizeFirstLetter(type.getName()));
         }
