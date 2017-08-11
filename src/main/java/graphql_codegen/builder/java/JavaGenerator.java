@@ -3,6 +3,7 @@ package graphql_codegen.builder.java;
 import graphql_codegen.Code;
 import graphql_codegen.Generator;
 import graphql_codegen.Util;
+import graphql_codegen.type.GraphQLEnumValueDescription;
 import graphql_codegen.type.GraphQLTypeDescription;
 
 import java.util.*;
@@ -154,7 +155,7 @@ public class JavaGenerator implements Generator {
         }
 
         List<String> enumValues = type.getEnumValues().stream()
-                .map(enumDesc -> enumDesc.getName().toUpperCase())
+                .map(this::convertToEnumKeyValue)
                 .collect(Collectors.toList());
         return JavaEnum.newJavaEnumBuilder()
                 .withPackagePath(basePackage)
@@ -206,5 +207,10 @@ public class JavaGenerator implements Generator {
                     .collect(Collectors.toList());
         }
         return convertedInterfaces;
+    }
+
+    private String convertToEnumKeyValue(GraphQLEnumValueDescription enumDesc) {
+        return enumDesc
+                .getName().toUpperCase() + "(\"" + enumDesc.getName() +"\")";
     }
 }
