@@ -159,7 +159,7 @@ public class JavaGenerator implements Generator {
                 .collect(Collectors.toList());
         return JavaEnum.newJavaEnumBuilder()
                 .withPackagePath(basePackage)
-                .withName(type.getName())
+                .withName(capitalizeFirstLetter(type.getName()))
                 .withMembers(enumValues)
                 .withDescription(type.getDescription())
                 .build();
