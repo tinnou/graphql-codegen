@@ -3,6 +3,7 @@ package graphql_codegen.builder.java;
 import graphql_codegen.Code;
 import graphql_codegen.Generator;
 import graphql_codegen.Util;
+import graphql_codegen.type.GraphQLEnumValueDescription;
 import graphql_codegen.type.GraphQLTypeDescription;
 
 import java.util.*;
@@ -60,13 +61,8 @@ public class JavaGenerator implements Generator {
                 })
                 .collect(Collectors.toList());
 
-        List<JavaTypeReference> inputInterfaces = new ArrayList<>();
-
-        if (type.getInterfaces() != null) {
-            inputInterfaces = type.getInterfaces().stream()
-                    .map(i -> { return new JavaTypeReference(i.getName());})
-                    .collect(Collectors.toList());
-        }
+        List<JavaTypeReference> inputInterfaces =
+                convertInterfacesToJavaTypeReferences(type.getInterfaces());
 
         return JavaType.newJavaTypeBuilder()
                 .withPackagePath(basePackage)
@@ -100,13 +96,8 @@ public class JavaGenerator implements Generator {
                 })
                 .collect(Collectors.toList());
 
-        List<JavaTypeReference> interfaces = new ArrayList<>();
-
-        if (type.getInterfaces() != null) {
-            interfaces = type.getInterfaces().stream()
-                    .map(i -> { return new JavaTypeReference(i.getName());})
-                    .collect(Collectors.toList());
-        }
+        List<JavaTypeReference> interfaces =
+                convertInterfacesToJavaTypeReferences(type.getInterfaces());
 
         return JavaType.newJavaTypeBuilder()
                 .withPackagePath(basePackage)
@@ -138,13 +129,8 @@ public class JavaGenerator implements Generator {
                                         f.isDeprecated(), f.getDeprecationReason()))
                 .collect(Collectors.toList());
 
-        List<JavaTypeReference> superInterfaces = new ArrayList<>();
-
-        if (type.getInterfaces() != null) {
-            superInterfaces = type.getInterfaces().stream()
-                    .map(i -> { return new JavaTypeReference(i.getName());})
-                    .collect(Collectors.toList());
-        }
+        List<JavaTypeReference> superInterfaces =
+                convertInterfacesToJavaTypeReferences(type.getInterfaces());
 
         return JavaInterface.newJavaInterfaceBuilder()
                 .withPackagePath(basePackage)
@@ -169,11 +155,11 @@ public class JavaGenerator implements Generator {
         }
 
         List<String> enumValues = type.getEnumValues().stream()
-                .map(enumDesc -> enumDesc.getName().toUpperCase())
+                .map(this::convertToEnumKeyValue)
                 .collect(Collectors.toList());
         return JavaEnum.newJavaEnumBuilder()
                 .withPackagePath(basePackage)
-                .withName(type.getName())
+                .withName(capitalizeFirstLetter(type.getName()))
                 .withMembers(enumValues)
                 .withDescription(type.getDescription())
                 .build();
@@ -209,5 +195,22 @@ public class JavaGenerator implements Generator {
             default:
                 return new JavaTypeReference(Util.capitalizeFirstLetter(type.getName()));
         }
+    }
+
+    private List<JavaTypeReference> convertInterfacesToJavaTypeReferences(List<GraphQLTypeDescription> interfaces) {
+        List<JavaTypeReference> convertedInterfaces = new ArrayList<>();
+
+        if (interfaces != null) {
+            convertedInterfaces = interfaces.stream()
+                    .map(i -> new JavaTypeReference(
+                            Util.capitalizeFirstLetter(i.getName())))
+                    .collect(Collectors.toList());
+        }
+        return convertedInterfaces;
+    }
+
+    private String convertToEnumKeyValue(GraphQLEnumValueDescription enumDesc) {
+        return enumDesc
+                .getName().toUpperCase() + "(\"" + enumDesc.getName() +"\")";
     }
 }

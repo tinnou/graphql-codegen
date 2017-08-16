@@ -8,7 +8,7 @@ package {{packagePath}};
 * {{description}}
 **/
 {{/description}}
-public class {{name}}{{#genericTypes}}<{{this}}{{^-last}}, {{/-last}}>{{/genericTypes}}{{#superClass}} extends {{{superClass}}}{{/superClass}}{{#inheritedTypes}} implements {{typeName}}{{^-last}}, {{/-last}}{{/inheritedTypes}} {
+public class {{name}}{{#genericTypes}}<{{this}}{{^-last}}, {{/-last}}>{{/genericTypes}}{{#superClass}} extends {{{superClass}}}{{/superClass}} {{#inheritedTypes}}{{#-first}}implements {{/-first}}{{typeName}}{{^-last}}, {{/-last}}{{/inheritedTypes}} {
 
 {{#members}}
     {{>field}}

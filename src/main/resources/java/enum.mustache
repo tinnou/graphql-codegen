@@ -8,13 +8,17 @@ package {{packagePath}};
 public enum {{name}} {
 
 {{#members}}
-    {{this}}{{^-last}}, {{/-last}}
+    {{{this}}}{{^-last}}, {{/-last}}{{#-last}};{{/-last}}
 {{/members}}
 
     private String value;
 
     {{name}} (String value) {
     this.value = value;
+    }
+
+    public String getValue() {
+        return value;
     }
 
     @Override
